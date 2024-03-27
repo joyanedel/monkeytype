@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { KeyboardEventHandler, useEffect, useRef, useState } from "react"
 import { loadWord } from "@/lib/loaders"
 
 const ALLOWED_CHARACTERS_REGEX = /^(Key[A-Z]|Backspace|Space)$/
@@ -32,8 +32,17 @@ type SequenceCharState = {
 }
 
 export default function Home() {
+  const mainRef = useRef<HTMLElement>(null)
+  mainRef.current?.focus()
   const [TARGET_TEXT, setTARGET_TEXT] = useState("")
   const [wordEvents, setWordEvents] = useState<CharEvent[]>([])
+
+  const handleKeyDown: KeyboardEventHandler<HTMLElement> = (event) => {
+      if (!ALLOWED_CHARACTERS_REGEX.test(event.code)) return
+      else if (event.code === "Space") setWordEvents([...wordEvents, { timestamp: new Date(), character: " " }])
+      else if (event.code === "Backspace") setWordEvents([...wordEvents, { timestamp: new Date() }])
+      else setWordEvents([...wordEvents, { timestamp: new Date(), character: event.code.at(-1)!.toLowerCase() }])
+  }
 
   useEffect(() => {
     loadWord(20).then(words => setTARGET_TEXT(words.join(" ").toLowerCase()))
@@ -65,7 +74,7 @@ export default function Home() {
   const sequenceAhead = " " + TARGET_TEXT.split(" ").slice(currentWords.length).join(" ")
   
   return (
-    <main className="h-screen font-mono">
+    <main className="h-full font-mono focus:outline-none" tabIndex={0} onKeyDown={handleKeyDown} ref={mainRef}>
       <header className="grid grid-cols-3 h-20 bg-gray-800 text-gray-300">
         <div className="flex flex-row justify-start items-center px-20">
           <span>{currentWords.join("").length}</span>
@@ -79,12 +88,6 @@ export default function Home() {
         className="flex flex-col items-start justify-center w-full h-full p-20"
         aria-label="typing zone"
       >
-        <input onKeyDown={(event) => {
-            if (!ALLOWED_CHARACTERS_REGEX.test(event.code)) return
-            else if (event.code === "Space") setWordEvents([...wordEvents, { timestamp: new Date(), character: " " }])
-            else if (event.code === "Backspace") setWordEvents([...wordEvents, { timestamp: new Date() }])
-            else setWordEvents([...wordEvents, { timestamp: new Date(), character: event.code.at(-1)!.toLowerCase() }])
-          }} />
         <div style={{ letterSpacing: "2px"}} className="text-2xl">
           {
             currentSequence.filter(char => char.result != SequenceStatus.NONE).map((char, index) => (
