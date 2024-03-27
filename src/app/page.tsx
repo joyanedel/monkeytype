@@ -17,7 +17,7 @@ const CHAR_COLORS = {
   CORRECT: "text-gray-300",
   WRONG: "text-red-600",
   MISSED: "text-red-800",
-  OVERWRITE: "text-yellow-500",
+  OVERWRITE: "text-red-800",
   NONE: "text-gray-500"
 }
 
@@ -56,7 +56,7 @@ export default function Home() {
         if (textChar == null) return { character: userChar, result: SequenceStatus.OVERWRITE }
         else if (userChar == "-") return { character: textChar, result: SequenceStatus.NONE }
         else if (userChar == "_") return { character: textChar, result: SequenceStatus.MISSED }
-        else if (userChar != textChar) return { character: userChar, result: SequenceStatus.WRONG }
+        else if (userChar != textChar) return { character: textChar, result: SequenceStatus.WRONG }
         return { character: textChar, result: SequenceStatus.CORRECT }
       })
     ]
@@ -65,7 +65,7 @@ export default function Home() {
   const sequenceAhead = " " + TARGET_TEXT.split(" ").slice(currentWords.length).join(" ")
   
   return (
-    <main className="h-screen">
+    <main className="h-screen font-mono">
       <header className="grid grid-cols-3 h-20 bg-gray-800 text-gray-300">
         <div className="flex flex-row justify-start items-center px-20">
           <span>{currentWords.join("").length}</span>
@@ -85,7 +85,7 @@ export default function Home() {
             else if (event.code === "Backspace") setWordEvents([...wordEvents, { timestamp: new Date() }])
             else setWordEvents([...wordEvents, { timestamp: new Date(), character: event.code.at(-1)!.toLowerCase() }])
           }} />
-        <div style={{ letterSpacing: "2px", fontFamily: "monospace" }} className="text-2xl">
+        <div style={{ letterSpacing: "2px"}} className="text-2xl">
           {
             currentSequence.filter(char => char.result != SequenceStatus.NONE).map((char, index) => (
               <span key={`user-char-${index}`} className={CHAR_COLORS[char.result]}>{char.character}</span>
