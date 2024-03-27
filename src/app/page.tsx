@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { loadWord } from "@/lib/loaders"
 
-const TARGET_TEXT = "hola mundo esto es un texto al azar Lorem ipsum dolot sit amet".toLowerCase()
 const ALLOWED_CHARACTERS_REGEX = /^(Key[A-Z]|Backspace|Space)$/
 
 enum SequenceStatus {
@@ -32,7 +32,12 @@ type SequenceCharState = {
 }
 
 export default function Home() {
+  const [TARGET_TEXT, setTARGET_TEXT] = useState("")
   const [wordEvents, setWordEvents] = useState<CharEvent[]>([])
+
+  useEffect(() => {
+    loadWord(20).then(words => setTARGET_TEXT(words.join(" ").toLowerCase()))
+  }, [])
 
   const currentWords = wordEvents.reduce((acc, wordEvent) => {
     if (wordEvent.character == null) return acc.slice(0, -1)
@@ -61,6 +66,15 @@ export default function Home() {
   
   return (
     <main className="h-screen">
+      <header className="grid grid-cols-3 h-20 bg-gray-800 text-gray-300">
+        <div className="flex flex-row justify-start items-center px-20">
+          <span>{currentWords.join("").length}</span>
+          /
+          <span>{TARGET_TEXT.replaceAll(" ", "").length}</span>
+        </div>
+        <h1 className="text-3xl col-start-2 flex flex-column justify-center items-center">Typing Test</h1>
+      </header>
+
       <section
         className="flex flex-col items-start justify-center w-full h-full p-20"
         aria-label="typing zone"
@@ -73,7 +87,13 @@ export default function Home() {
           }} />
         <div style={{ letterSpacing: "2px", fontFamily: "monospace" }} className="text-2xl">
           {
-            currentSequence.map((char, index) => (
+            currentSequence.filter(char => char.result != SequenceStatus.NONE).map((char, index) => (
+              <span key={`user-char-${index}`} className={CHAR_COLORS[char.result]}>{char.character}</span>
+            ))
+          }
+          <span className="animate-cursor-blink absolute -ml-2" style={{ letterSpacing: 0 }}>|</span>
+          {
+            currentSequence.filter(char => char.result == SequenceStatus.NONE).map((char, index) => (
               <span key={`user-char-${index}`} className={CHAR_COLORS[char.result]}>{char.character}</span>
             ))
           }
