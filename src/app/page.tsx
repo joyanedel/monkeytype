@@ -58,7 +58,7 @@ const getCurrentWords = (wordEvents: CharEvent[]) => {
 }
 
 export default function Home() {
-  const { text } = useRandomWords(20)
+  const { text, length } = useRandomWords(20)
   const mainRef = useRef<HTMLElement>(null)
   mainRef.current?.focus()
   const [wordEvents, setWordEvents] = useState<CharEvent[]>([])
@@ -73,7 +73,7 @@ export default function Home() {
         <div className="flex flex-row justify-start items-center px-20">
           <span>{currentWords.join("").length}</span>
           /
-          <span>{text.replaceAll(" ", "").length}</span>
+          <span>{length}</span>
         </div>
         <h1 className="text-3xl col-start-2 flex flex-column justify-center items-center">Typing Test</h1>
       </header>
