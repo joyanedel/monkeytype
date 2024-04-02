@@ -4,8 +4,7 @@ import { useRef, useState } from "react"
 import { getCurrentSentence, getCurrentWords, handleKeyDown } from "./handlers"
 import { useRandomWords } from "../hooks/words"
 import { CharEvent, SequenceStatus } from "../types"
-import { redirect } from "next/navigation"
-
+import { redirect, useRouter } from "next/navigation"
 
 const CHAR_COLORS = {
   CORRECT: "text-gray-300",
@@ -25,7 +24,9 @@ export default function Home() {
   const currentSequence = getCurrentSentence(currentWords, text)
   const sequenceAhead = " " + text.split(" ").slice(currentWords.length).join(" ")
 
-  if (wordsLength + 1 == currentWords.length && length > 0 ) {
+  const isFinished = (currentWords.length == wordsLength && length > 0 && currentSequence.every(char => char.result != SequenceStatus.NONE)) || (currentWords.length > wordsLength && length > 0)
+
+  if (isFinished) {
     redirect("/finish")
   }
   
@@ -38,6 +39,12 @@ export default function Home() {
           <span>{length}</span>
         </div>
         <h1 className="text-3xl col-start-2 flex flex-column justify-center items-center">Typing Test</h1>
+        <span
+          className="flex flex-row justify-end items-center px-20 cursor-pointer"
+          onClick={() => window.location.reload()}
+        >
+          Repeat?
+        </span>
       </header>
 
       <section
