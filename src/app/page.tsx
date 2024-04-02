@@ -54,7 +54,7 @@ const getCurrentWords = (wordEvents: CharEvent[]) => {
   return wordEvents.reduce((acc, wordEvent) => {
     if (wordEvent.character == null) return acc.slice(0, -1)
     return [...acc, wordEvent.character]
-  }, [] as string[]).join("").split(" ").filter(word => word.length > 0)
+  }, [] as string[]).join("").split(" ")
 }
 
 export default function Home() {
