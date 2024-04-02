@@ -1,9 +1,7 @@
 "use client"
 
-import { KeyboardEventHandler, useEffect, useRef, useState } from "react"
-import { loadWord } from "@/lib/loaders"
+import { useRef, useState } from "react"
 import { handleKeyDown } from "./handlers"
-import { GetStaticProps, GetStaticPropsResult } from "next"
 import { useRandomWords } from "../hooks/words"
 
 enum SequenceStatus {
@@ -32,18 +30,8 @@ type SequenceCharState = {
   result: SequenceStatus
 }
 
-export default function Home() {
-  const { text } = useRandomWords(20)
-  const mainRef = useRef<HTMLElement>(null)
-  mainRef.current?.focus()
-  const [wordEvents, setWordEvents] = useState<CharEvent[]>([])
-
-  const currentWords = wordEvents.reduce((acc, wordEvent) => {
-    if (wordEvent.character == null) return acc.slice(0, -1)
-    return [...acc, wordEvent.character]
-  }, [] as string[]).join("").split(" ").filter(word => word.length > 0)
-
-  const currentSequence = currentWords.reduce((acc, currentWord, currentIndex) => {
+const getCurrentSentence = (currentWords: string[], text: string) => {
+  return currentWords.reduce((acc, currentWord, currentIndex) => {
     const correlatedTextWord = text.split(" ").at(currentIndex)!
     const intermediateCurrentWord = currentIndex == currentWords.length - 1 ? currentWord.padEnd(correlatedTextWord.length, "-") : currentWord.padEnd(correlatedTextWord.length, "_")
     const zip = intermediateCurrentWord.split("").map((k, i) => [k, correlatedTextWord[i]])
@@ -60,7 +48,23 @@ export default function Home() {
       })
     ]
   }, [] as SequenceCharState[])
+}
 
+const getCurrentWords = (wordEvents: CharEvent[]) => {
+  return wordEvents.reduce((acc, wordEvent) => {
+    if (wordEvent.character == null) return acc.slice(0, -1)
+    return [...acc, wordEvent.character]
+  }, [] as string[]).join("").split(" ").filter(word => word.length > 0)
+}
+
+export default function Home() {
+  const { text } = useRandomWords(20)
+  const mainRef = useRef<HTMLElement>(null)
+  mainRef.current?.focus()
+  const [wordEvents, setWordEvents] = useState<CharEvent[]>([])
+
+  const currentWords = getCurrentWords(wordEvents)
+  const currentSequence = getCurrentSentence(currentWords, text)
   const sequenceAhead = " " + text.split(" ").slice(currentWords.length).join(" ")
   
   return (
