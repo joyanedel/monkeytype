@@ -31,7 +31,7 @@ export default function Home() {
   }
   
   return (
-    <main className="h-full font-mono focus:outline-none" tabIndex={0} onKeyDown={handleKeyDown(setWordEvents, wordEvents)} ref={mainRef}>
+    <main className="min-h-screen font-mono focus:outline-none flex flex-col" tabIndex={0} onKeyDown={handleKeyDown(setWordEvents, wordEvents)} ref={mainRef}>
       <header className="grid grid-cols-3 h-20 bg-gray-800 text-gray-300">
         <div className="flex flex-row justify-start items-center px-20">
           <span>{currentWords.join("").length}</span>
@@ -48,7 +48,7 @@ export default function Home() {
       </header>
 
       <section
-        className="flex flex-col items-start justify-center w-full h-full p-20"
+        className="flex flex-col items-start justify-center w-full flex-1 p-20"
         aria-label="typing zone"
       >
         <div style={{ letterSpacing: "2px"}} className="text-2xl">
