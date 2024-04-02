@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import { getCurrentSentence, getCurrentWords, handleKeyDown } from "./handlers"
 import { useRandomWords } from "../hooks/words"
 import { CharEvent, SequenceStatus } from "../types"
+import { redirect } from "next/navigation"
 
 
 const CHAR_COLORS = {
@@ -15,7 +16,7 @@ const CHAR_COLORS = {
 }
 
 export default function Home() {
-  const { text, length } = useRandomWords(20)
+  const { text, length, wordsLength } = useRandomWords(20)
   const mainRef = useRef<HTMLElement>(null)
   mainRef.current?.focus()
   const [wordEvents, setWordEvents] = useState<CharEvent[]>([])
@@ -23,6 +24,10 @@ export default function Home() {
   const currentWords = getCurrentWords(wordEvents)
   const currentSequence = getCurrentSentence(currentWords, text)
   const sequenceAhead = " " + text.split(" ").slice(currentWords.length).join(" ")
+
+  if (wordsLength + 1 == currentWords.length && length > 0 ) {
+    redirect("/finish")
+  }
   
   return (
     <main className="h-full font-mono focus:outline-none" tabIndex={0} onKeyDown={handleKeyDown(setWordEvents, wordEvents)} ref={mainRef}>

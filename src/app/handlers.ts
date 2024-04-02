@@ -3,8 +3,10 @@ import { CharEvent, SequenceCharState, SequenceStatus } from "../types"
 
 const ALLOWED_CHARACTERS_REGEX = /^(Key[A-Z]|Backspace|Space)$/
 
-export const handleKeyDown: (setter: any, previousValues: any) => KeyboardEventHandler<HTMLElement> = (setter, previousValues) => (event) => {
+export const handleKeyDown: (setter: Function, previousValues: CharEvent[]) => KeyboardEventHandler<HTMLElement> = (setter, previousValues) => (event) => {
   if (!ALLOWED_CHARACTERS_REGEX.test(event.code)) return
+  else if (event.code === "Space" && previousValues.at(-1)!.ignore) return setter([...previousValues, { timestamp: new Date(), ignore: true }])
+  else if (event.code === "Space" && previousValues.at(-1)!.character === " ") setter([...previousValues, { timestamp: new Date(), ignore: true }])
   else if (event.code === "Space") setter([...previousValues, { timestamp: new Date(), character: " " }])
   else if (event.code === "Backspace") setter([...previousValues, { timestamp: new Date() }])
   else setter([...previousValues, { timestamp: new Date(), character: event.code.at(-1)!.toLowerCase() }])
@@ -31,8 +33,11 @@ export const getCurrentSentence = (currentWords: string[], text: string) => {
 }
 
 export const getCurrentWords = (wordEvents: CharEvent[]) => {
-  return wordEvents.reduce((acc, wordEvent) => {
-    if (wordEvent.character == null) return acc.slice(0, -1)
+  const word = wordEvents.reduce((acc, wordEvent) => {
+    if (wordEvent.ignore === true) return acc
+    else if (wordEvent.character == null) return acc.slice(0, -1)
     return [...acc, wordEvent.character]
-  }, [] as string[]).join("").split(" ")
+  }, [] as string[]).join("")
+
+  return word.split(" ")
 }

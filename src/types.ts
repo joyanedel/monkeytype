@@ -14,4 +14,5 @@ export type SequenceCharState = {
 export type CharEvent = {
   timestamp: Date
   character?: string
+  ignore?: boolean
 }
