@@ -6,7 +6,7 @@ export const loadWordList = async () => {
   return words
 }
 
-export const loadWord = async (quantity: number) => {
+export const loadWord = async (quantity: number): Promise<string[]> => {
   const words = (await loadWordList())
   return Array.from({ length: quantity }, () => pickRandom(words))
 }
