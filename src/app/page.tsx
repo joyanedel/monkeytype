@@ -1,16 +1,10 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { handleKeyDown } from "./handlers"
+import { getCurrentSentence, getCurrentWords, handleKeyDown } from "./handlers"
 import { useRandomWords } from "../hooks/words"
+import { CharEvent, SequenceStatus } from "../types"
 
-enum SequenceStatus {
-  CORRECT = "CORRECT",
-  WRONG = "WRONG",
-  MISSED = "MISSED",
-  OVERWRITE = "OVERWRITE",
-  NONE = "NONE"
-}
 
 const CHAR_COLORS = {
   CORRECT: "text-gray-300",
@@ -18,43 +12,6 @@ const CHAR_COLORS = {
   MISSED: "text-red-800",
   OVERWRITE: "text-red-800",
   NONE: "text-gray-500"
-}
-
-type CharEvent = {
-  timestamp: Date
-  character?: string
-}
-
-type SequenceCharState = {
-  character: string
-  result: SequenceStatus
-}
-
-const getCurrentSentence = (currentWords: string[], text: string) => {
-  return currentWords.reduce((acc, currentWord, currentIndex) => {
-    const correlatedTextWord = text.split(" ").at(currentIndex)!
-    const intermediateCurrentWord = currentIndex == currentWords.length - 1 ? currentWord.padEnd(correlatedTextWord.length, "-") : currentWord.padEnd(correlatedTextWord.length, "_")
-    const zip = intermediateCurrentWord.split("").map((k, i) => [k, correlatedTextWord[i]])
-    const spaceElement = currentIndex == 0 ? [] : [{ character: " ", result: SequenceStatus.CORRECT }]
-    return [
-      ...acc,
-      ...spaceElement,
-      ...zip.map(([userChar, textChar]) => {
-        if (textChar == null) return { character: userChar, result: SequenceStatus.OVERWRITE }
-        else if (userChar == "-") return { character: textChar, result: SequenceStatus.NONE }
-        else if (userChar == "_") return { character: textChar, result: SequenceStatus.MISSED }
-        else if (userChar != textChar) return { character: textChar, result: SequenceStatus.WRONG }
-        return { character: textChar, result: SequenceStatus.CORRECT }
-      })
-    ]
-  }, [] as SequenceCharState[])
-}
-
-const getCurrentWords = (wordEvents: CharEvent[]) => {
-  return wordEvents.reduce((acc, wordEvent) => {
-    if (wordEvent.character == null) return acc.slice(0, -1)
-    return [...acc, wordEvent.character]
-  }, [] as string[]).join("").split(" ")
 }
 
 export default function Home() {

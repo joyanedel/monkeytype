@@ -1,5 +1,4 @@
 import { loadWord } from "@/lib/loaders"
-import { pickRandom } from "@/lib/random"
 import { useEffect, useState } from "react"
 
 export const useRandomWords = (quantity: number) => {
